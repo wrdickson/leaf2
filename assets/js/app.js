@@ -2,155 +2,112 @@
 define([
     'backbone',
     'marionette',
-    'apps/control/controlApp',
-    'apps/user/userApp',
-    'apps/lMap/lMap',
     'common/dispatch',
+    'routers/mapRouter',
+    'apps/user/userApp',
+    'apps/control/controlApp',
+    'apps/map/mapApp',
     'jquery'
 ], function (
     Backbone,
     Marionette,
-    ControlApp,    
-    UserApp,
-    LMap,
-    dispatch
+    dispatch,
+    mapRouter,
+    userApp,
+    controlApp,
+    mapApp
 ) {
 	'use strict';
-    //this is where we get the evil global variables from php
-    //kneel down and vow that globals will never be accessed or created again
-    var baseUrl = mtoBaseUrl;
-    //and we do it again for mtoUser
-    var user = new UserApp.User(mtoUser);
-    console.log('user@init:',user);
-    var router;
-    
-    
-    var MapModel = Backbone.Model.extend({
-        urlRoot: baseUrl + "api/maps",
-        initialize: function(){
-            var self = this;
-            this.on("change", function(){
-    
-            });
-            this.on("sync", function(){
 
-            });
-        }   
-    });
-    var mapModel;
-    
-
-    
-    var handleUserChange = function(){
-        //reburn control
-        ControlApp.initialize(user);
-        //reload map
-        
-    };
-    
+ 
     //bit of a hack to keep the map full screen
+    //TODO: move this to map initialize()
     $("#leafletMap").css("height", document.documentElement.clientHeight);            
     $(window).resize(function(){
         $("#leafletMap").css("height", document.documentElement.clientHeight);
     });    
     
-    var MapApp = new Marionette.Application;
     
-	MapApp.addRegions({
-		mainRegion: "#main-region",
-        menuRegion: "#menu-region",
-        dialogRegion: "#dialog-region",
-        mapRegion: "#map-canvas",
-        //see http://lostechies.com/derickbailey/2012/04/17/managing-a-modal-dialog-with-backbone-and-marionette/ 
-        //for derick baily's discussion of wrapping the modal 
-        modalRegion: "#modal-region",
+    //PRIVATE VARIABLES:
+    var app; 
+    var selectedMapId;
+    var userModel;
+    var mapModel;
+    //this is where we get the evil global variables from php
+    var baseUrl = mtoBaseUrl;
+    var root = mtoRoot;
+    var initialUserJson = mtoUser;
+    
+    //PRIVATE FUNCTIONS:
+    var reburn = function () {
+        console.log("reburn . . . ", userModel, mapModel);
+        //ensure that userModel AND mapModel exist 
+        //this is important during the intitial sequence 
+    };
+    
+    
+    
+    app = new Marionette.Application;
+	app.addRegions({
+        dialogRegion: "#dialogRegion",
         mapInfoRegion: "#mapInfo",
         mapFeaturesRegion: "#mapFeatures",
         featureDetailInfoRegion: "#featureDetailInfo",
         featureDetailCoordsRegion: "#featureDetailCoords"
 	});
-    MapApp.loadMap = function (id) {
-        console.log("firing",id);
-        mapModel = new MapModel({
-            id: id
-        });
-        mapModel.fetch({
-            success: function (model, response, options) {
-                MapApp.router.navigate("maps/" + id);
-                console.log("mapModel " + id + " loaded:", model.toJSON());
-                LMap.burnMap(model, user);
-                dispatch.trigger("mapModel:burnControl", model, user);
-            },
-            error: function (error) {
-                console.log("error:", error);
-            }
-        });
-    }
-	MapApp.on("start", function () {
-        MapApp.baseUrl = baseUrl;
-        
-        UserApp.initialize(user);        
-        ControlApp.initialize(user);
-        LMap.initialize(user);        
-        
-        //start by defining the router and controller
-        var RouteController = Marionette.Controller.extend({
-            loadDefaultMap: function () {
-                var defaultMapId = 70;
-                console.log("loading default map");
-                MapApp.loadMap(70);
-            },  
-            loadMap: function (id) {
-                console.log("loadMap", id);
-                MapApp.loadMap(id);
-                
-            }
-        });
-        var routeController = new RouteController();
-        MapApp.router = new Marionette.AppRouter({
-            controller: routeController,
-            appRoutes: {
-                "": "loadDefaultMap",
-                "maps/:id": "loadMap"
-            }
-        });
-        //ONLY after the routers are instantiated to we start Backbone.history
-        if (Backbone.history) { 
-            Backbone.history.start({
-                pushState: true,
-                root: "leaf2"
-            });
-        }
-        //MapApp.router.navigate("something/else"); //works
+    
 
+ 
+	app.on("start", function () {
+        console.log("app started");
+        userApp.initialize();
+        controlApp.initialize();
+        mapApp.initialize();
+        mapRouter.initialize();
+        //once user is set, it will trigger map load and control load, 
+        //which sets the whole system in motion . . .
+        //EXCEPT that the router will try to load the map before user is set???!!!
+        userApp.setUser(initialUserJson);
+        
 	});
     
-    dispatch.setHandler("MapApp:getBaseUrl", function () {
-        return baseUrl;
-    });    
-        
-    dispatch.on("menu:showLogin", function () {
-        UserApp.userLoginView = new UserApp.UserLoginView();
-        MapApp.dialogRegion.show(UserApp.userLoginView);
+    //DISPATCH EVENTS:
+    
+    dispatch.on("app:setSelectedMapId", function (id) {
+        console.log("app registers selectedMapId change: ", parseInt(id, 10));
+        selectedMapId = parseInt(id, 10);
+        //TODO: load the mapModel via rest api call . . .
+        //reburn map and control
+        reburn();
     });
-    dispatch.on("MapApp:resetDialogRegion", function () {
-        MapApp.dialogRegion.reset();
+    
+    dispatch.on("app:userModelChange", function( pUserModel) {
+        console.log("app registers userModel change:", pUserModel);
+        userModel = pUserModel;
+        //reburn map and control
+        reburn();
+    });
+    
+    
+    dispatch.setHandler("app:getBaseUrl", function () {
+        return baseUrl;
+    });
+    
+    dispatch.setHandler("app:getRoot", function () {
+        return root;
+    });
+    
+    dispatch.setHandler("app:getUser", function () {
+        return userApp.getUser();
     });
 
-    dispatch.on("MapApp:setUser", function (data) {
-        user.set({
-            mtoUserId: data.id,
-            mtoUserKey: data.key,
-            mtoUserPerm: data.permission,
-            mtoUserName: data.username
-        });
-        handleUserChange();
+    dispatch.on("app:setSelectedMapId", function (id) {
+        selectedMapId = id;
     });
-    dispatch.on("MapApp:showDialogView", function (view) {
-        MapApp.dialogRegion.show(view);
-    });
-    dispatch.on("MapApp:loadMap", function (id) {
-        MapApp.loadMap(id);
-    });
-	return MapApp;
+
+
+	return app;
+    
+    
 });
+

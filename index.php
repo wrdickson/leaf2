@@ -1,6 +1,7 @@
 <?php 
     session_start();
     define('BASE_URL', "http://localhost/leaf2/");
+    define('BASE_ROOT', "leaf2");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,8 +42,9 @@
         echo"<script>var mtoUser= " . $userJson . ";</script>";
         
 
-        //send BASE_URL to javascript
+        //send BASE_URL and BASE_ROOT to javascript
         echo"<script>var mtoBaseUrl = '" . BASE_URL . "';</script>";
+        echo"<script>var mtoRoot = '" . BASE_ROOT . "';</script>";
     ?>
     <style>
        .leafletMap {
@@ -53,15 +55,12 @@
 
   <body>
     <div id="leafletMap" class="leafletMap"></div>
-    <div id="header-region"></div> 
-    <div id="dialog-region"></div>
-    <div id="modal-region"></div>
+    <div id="dialogRegion"></div>
     <div id="mtoControl" style="display: none">
     	<div id="mtoControlUpper">
 	        <span id="mtoLogo" style="height: 26px;"><img src="<?php echo BASE_URL?>assets/img/mto_green.png"  style="height: 24px;padding: 2px; margin-top: 3px;"/>
 	            
 	        </span>
-            <a id="mtoLogoa" href="#">drag</a>
 	        <button id="btnDemo" style="float: right; margin-top: 3px; margin-right: 3px;"></button>
 	    </div>
         <div id="menu-region" style="margin-right:2px;margin-left:2px;margin-bottom: 2px;"></div>
