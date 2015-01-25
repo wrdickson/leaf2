@@ -48,7 +48,7 @@ define ([
         });
     };
     /*
-    DEFINITION - - - API:
+    DEFINITION - API:
     */
     var controlApp = {
         initialize: function () {
@@ -63,6 +63,16 @@ define ([
             //TODO: here we load the tabs with the model data . . . 
         }
     };
+    /*
+    EVENTS - .on:
+    */
+    dispatch.on("app:fireLoginDialog", function (p) {
+        
+    });
+    /*
+    EVENTS - .setHandler():
+    */
+    
     return controlApp;
 });
     

@@ -46,6 +46,9 @@ define([
             console.log("reburn aborted: missing parameter");
         }
     };
+    /*
+    APP INITIALIZATION:
+    */
     app = new Marionette.Application();
 	app.addRegions({
         dialogRegion: "#dialogRegion",

@@ -17,7 +17,7 @@ define([
     var handleMenuClick = function(id, zoneId, cssState){
         switch (id){
             case "login":
-                dispatch.trigger("controlApp:fireLoginDialog");
+                dispatch.trigger("app:fireLoginDialog");
             break;
             case "logoff":
                 dispatch.trigger("user:logoff");
