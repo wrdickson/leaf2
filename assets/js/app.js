@@ -7,6 +7,7 @@ define([
     'apps/user/userApp',
     'apps/control/controlApp',
     'apps/map/mapApp',
+    'data/data',
     'jquery'
 ], function (
     Backbone,
@@ -15,21 +16,15 @@ define([
     mapRouter,
     userApp,
     controlApp,
-    mapApp
+    mapApp,
+    data
 ) {
 	'use strict';
-
- 
-    //bit of a hack to keep the map full screen
-    //TODO: move this to map initialize()
-    $("#leafletMap").css("height", document.documentElement.clientHeight);            
-    $(window).resize(function(){
-        $("#leafletMap").css("height", document.documentElement.clientHeight);
-    });    
-    
-    
-    //PRIVATE VARIABLES:
-    var app; 
+    /*
+    PRIVATE VARIABLES:
+    */
+    var app;
+    var selectedFeatureIndex;
     var selectedMapId;
     var userModel;
     var mapModel;
@@ -37,17 +32,21 @@ define([
     var baseUrl = mtoBaseUrl;
     var root = mtoRoot;
     var initialUserJson = mtoUser;
-    
-    //PRIVATE FUNCTIONS:
+    /*
+    PRIVATE FUNCTIONS:
+    */
     var reburn = function () {
-        console.log("reburn . . . ", userModel, mapModel);
         //ensure that userModel AND mapModel exist 
         //this is important during the intitial sequence 
+        if(userModel && mapModel) {
+            console.log("reburn . . . ", userModel, mapModel);
+            mapApp.loadMap(userModel, mapModel);
+            controlApp.loadControl(userModel, mapModel);
+        } else {
+            console.log("reburn aborted: missing parameter");
+        }
     };
-    
-    
-    
-    app = new Marionette.Application;
+    app = new Marionette.Application();
 	app.addRegions({
         dialogRegion: "#dialogRegion",
         mapInfoRegion: "#mapInfo",
@@ -55,24 +54,24 @@ define([
         featureDetailInfoRegion: "#featureDetailInfo",
         featureDetailCoordsRegion: "#featureDetailCoords"
 	});
-    
-
- 
 	app.on("start", function () {
         console.log("app started");
         userApp.initialize();
         controlApp.initialize();
         mapApp.initialize();
         mapRouter.initialize();
-        //once user is set, it will trigger map load and control load, 
-        //which sets the whole system in motion . . .
-        //EXCEPT that the router will try to load the map before user is set???!!!
+        //set the events in motion!
         userApp.setUser(initialUserJson);
+        //load a default map
+        var ddd = data.getMap(userModel, 70);
+        ddd.done( function (pMapModel) {
+            mapModel = pMapModel;
+            console.log("mapModel:", mapModel);
+            reburn();
+        });
         
 	});
-    
     //DISPATCH EVENTS:
-    
     dispatch.on("app:setSelectedMapId", function (id) {
         console.log("app registers selectedMapId change: ", parseInt(id, 10));
         selectedMapId = parseInt(id, 10);
@@ -80,34 +79,22 @@ define([
         //reburn map and control
         reburn();
     });
-    
-    dispatch.on("app:userModelChange", function( pUserModel) {
+    dispatch.on("app:userModelChange", function (pUserModel) {
         console.log("app registers userModel change:", pUserModel);
         userModel = pUserModel;
         //reburn map and control
         reburn();
     });
-    
-    
     dispatch.setHandler("app:getBaseUrl", function () {
         return baseUrl;
     });
-    
     dispatch.setHandler("app:getRoot", function () {
         return root;
     });
-    
     dispatch.setHandler("app:getUser", function () {
         return userApp.getUser();
     });
-
-    dispatch.on("app:setSelectedMapId", function (id) {
-        selectedMapId = id;
-    });
-
-
+    
 	return app;
-    
-    
 });
 
