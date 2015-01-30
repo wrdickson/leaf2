@@ -1,10 +1,12 @@
 //mapApp.js
 define ([
     'backbone',
+    'common/dispatch',
     'leaflet',
     'leaflet.draw'
 ], function (
-    Backbone
+    Backbone,
+    dispatch
 ) {
     "use strict";
     /*
@@ -34,6 +36,10 @@ define ([
             $(window).resize(function () {
                 $("#leafletMap").css("height", document.documentElement.clientHeight);
             });
+            
+            //tell leaflet where the images are
+            baseUrl = dispatch.request("app:getBaseUrl");
+            L.Icon.Default.imagePath =  baseUrl + 'assets/css/leaflet/images/';
         },
         getMapModel: function() {
             return mapModel;

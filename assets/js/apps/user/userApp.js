@@ -9,7 +9,6 @@ define ([
 ) {
     
     //PRIVATE VARIABLES:
-    var baseUrl; 
     var UserModel = Backbone.Model.extend({
         initialize: function(){
             this.on("change", function () {
@@ -22,9 +21,9 @@ define ([
     
     //PRIVATE FUNCTIONS:
     
-
+    //public functions:
     var userApp =  {
-        //public functions:
+        
         initialize: function () {
             console.log("userApp initailizes . . . ");
             userModel = new UserModel();         

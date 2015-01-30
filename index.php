@@ -6,7 +6,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    
     <meta charset="utf-8">
     <title>leafletMap-dev</title>
     <!--
@@ -17,31 +16,25 @@
     <link href="<?php echo BASE_URL?>assets/css/jquery-ui/jquery-ui.theme.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL?>assets/css/dhtmlxMenu/dhtmlxmenu.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL?>assets/css/jqueryui-editable/css/jqueryui-editable.css">
-    
     <link rel="stylesheet" href="<?php echo BASE_URL?>assets/css/leaflet/leaflet.css" type="text/css">    
     <link rel="stylesheet" href="<?php echo BASE_URL?>assets/css/leaflet-draw/leaflet.draw.css" type="text/css">
     <?php
         //get session user data if available
         //this is to handle the situation where a user refreshes or manually enters a url
         if(isset($_SESSION['mtoUserId']) && isset($_SESSION['mtoUserKey']) && isset($_SESSION['mtoUserPerm'])){
-        
         }else{
             $_SESSION['mtoUserId'] = 0;
             $_SESSION['mtoUserKey'] = 0;
             $_SESSION['mtoUsername'] = "Guest";
             $_SESSION['mtoUserPerm'] = 0;
-        
         }
         $mtoUser = array();
         $mtoUser['mtoUserId'] = $_SESSION['mtoUserId'];
         $mtoUser['mtoUserKey'] = $_SESSION['mtoUserKey'];
         $mtoUser['mtoUserName'] = $_SESSION['mtoUsername'];
         $mtoUser['mtoUserPerm'] = $_SESSION['mtoUserPerm'];
-        
         $userJson = json_encode($mtoUser);
         echo"<script>var mtoUser= " . $userJson . ";</script>";
-        
-
         //send BASE_URL and BASE_ROOT to javascript
         echo"<script>var mtoBaseUrl = '" . BASE_URL . "';</script>";
         echo"<script>var mtoRoot = '" . BASE_ROOT . "';</script>";
@@ -52,14 +45,12 @@
         width: 100%;    
     </style>
   </head>
-
   <body>
     <div id="leafletMap" class="leafletMap"></div>
     <div id="dialogRegion"></div>
     <div id="mtoControl" style="display: none">
     	<div id="mtoControlUpper">
 	        <span id="mtoLogo" style="height: 26px;"><img src="<?php echo BASE_URL?>assets/img/mto_green.png"  style="height: 24px;padding: 2px; margin-top: 3px;"/>
-	            
 	        </span>
 	        <button id="btnDemo" style="float: right; margin-top: 3px; margin-right: 3px;"></button>
 	    </div>
@@ -73,7 +64,6 @@
             </ul>
             <div id="tabs-0" class="tabs-content">
                 <div id="mapInfo">mapInfo</div>
-
             </div>
             <div id="tabs-1" class="tabs-content">
                 <div id="mapFeatures">mapFeatures</div>
@@ -95,13 +85,9 @@
             </div>
         </div>        
     </div>
-	
     <div id="main-region" class="container">
-      
     </div>
-
     <div id="dialog-region"></div>
-    
     <script type="text/template" id="user-login">
     	Username:<br/>
     	<input type="text" id="loginUsername"/><br/>
@@ -110,13 +96,11 @@
     	<button class="btn" type="button" id="btnLogin">Login</button>
     	<button class="btn" type="button" id="btnCancelLogin">Cancel</button>
    	</script>
-
     <script data-main="<?php echo BASE_URL?>assets/js/require_main.js" src="<?php echo BASE_URL?>assets/js/vendor/require.js"></script>
-
 	<!--   
     <script src="<?php echo BASE_URL?>assets/js/require_main.built.js"></script>
     -->   
-    
    </body>
-    
 </html>
+
+

@@ -9,6 +9,7 @@ define([
     dhtmlxMenuObject,
     dispatch
 ){
+    'use strict';
 	//private variables
 	var menu={};
     var monitorMenu;

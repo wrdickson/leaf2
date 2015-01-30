@@ -67,12 +67,10 @@ define ([
     EVENTS - .on:
     */
     dispatch.on("app:fireLoginDialog", function (p) {
-        
     });
     /*
     EVENTS - .setHandler():
     */
-    
     return controlApp;
 });
     

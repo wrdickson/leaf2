@@ -1,5 +1,4 @@
 //userLoginView.js
-
 define([
     'marionette',
     'tpl!apps/control/templates/userLogin.tpl',
@@ -30,7 +29,7 @@ define([
                     type: "GET",
                     data: param,
                     success: function (data) {
-                        //TODO: handle a failed login, not just error as below
+                        //TODO: handle a failed login, not just error as below . . . 
                         if(JSON.parse(data).id > 0){
                             dispatch.trigger("MapApp:setUser", JSON.parse(data));
                             self.closeDialog();
